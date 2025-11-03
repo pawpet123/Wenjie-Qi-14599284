@@ -20,7 +20,7 @@ When you are ready, copy the code into PyCharm and run it.
 2. The Requests library is essential for this program. Please make sure you have it installed. Otherwise, the program will not run.
 If you are using PyCharm, installing the Requests library is very simple. If you do not know how to install it, just run the program once and when an error message appears, you can follow PyCharm’s prompt to install the library automatically.
 
-3. Follow the instructions on the panel and enter the URLs.
+3. Follow the instructions on the panel and enter the URLs. Don't forget to press the enter button after entering!
 Use a comma (remember, no space after that comma) to separate multiple URLs. You can run as many tasks as you want at once.
 The program will then display information.
 
