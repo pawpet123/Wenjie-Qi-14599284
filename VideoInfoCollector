@@ -1,35 +1,43 @@
-import requests #Requests is necessary in this code to access the server
+import requests  # Requests is necessary in this code to access the server
 
-urls = input("Please enter Bilibili video URLs (separated by commas): ").split(",")
+choice = input("Enter 0 to check video info, or 1 to check uploader info: ")
+
+urls = input("Please enter Bilibili URLs (1.Separated by commas, and no space after the comma. 2.If you want the uploader's information, enter the uploader's personal page URL instead of the video's.): ").split(",")  # Separate different links with commas
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36',
+    'Referer': 'https://www.bilibili.com/',
+} #Pretend to be a real user accessed by a browser to avoid being intercepted by server defences.
 
 for url in urls:
-    if "/video/" in url:
-        bvid = url.split("/video/")[1].split("?")[0].rstrip("/")    # To get bvid
 
-    else:
-        print("❌ Invalid URL:", url)
-        continue
+    #  Video Info
+    if choice == "0":
+        bvid = url.split("/video/")[1].split("?")[0].rstrip("/")  # Extract BV
+        api_url = f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}"
+        response = requests.get(api_url, headers=headers)
+        data = response.json()["data"] #Access the server and get the json data
 
-    if len(bvid) != 12:
-        print("❌ Invalid BV:", bvid)
-        continue
+        print("\n====== Video Info ======")
+        print("Title:", data["title"])
+        print("Uploader:", data["owner"]["name"])
+        print("Views:", data["stat"]["view"])
+        print("Likes:", data["stat"]["like"])
+        print("Comments:", data["stat"]["reply"])
 
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36',
-        'Referer': 'https://www.bilibili.com/',
-    } 
+    # Uploader Info
+    if choice == "1":
+        uid_part = url.split("space.bilibili.com/")[1]
+        for sep in ["/", "?", "&"]:
+            if sep in uid_part:
+                uid_part = uid_part.split(sep)[0]
+        uid = uid_part.rstrip("/") #Extrect UID
 
-    api_url = f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}"
+        uploader_data_api = f"https://api.bilibili.com/x/relation/stat?vmid={uid}"
+        up_response = requests.get(uploader_data_api, headers=headers)
+        uploader_data = up_response.json()["data"]
 
-    response = requests.get(api_url, headers=headers)
-    if response.status_code != 200:
-        print(f"❌ Failed to get info for {bvid}")
-
-    data = response.json()["data"]
-
-    print("====== Video Info ======")
-    print("Title:", data["title"])
-    print("Uploader:", data["owner"]["name"])
-    print("Views:", data["stat"]["view"])
-    print("Likes:", data["stat"]["like"])
-    print("Comments:", data["stat"]["reply"])
+        print("\n------ Uploader Info ------")
+        print("Uploader UID:", uid)
+        print("Follower Count:", uploader_data["follower"])
+        print("Following Count:", uploader_data["following"])
